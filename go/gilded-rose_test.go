@@ -153,4 +153,66 @@ var _ = Describe("UpdateQuality", func() {
 			})
 		})
 	})
+	Context("backstage ticket items", func() {
+		BeforeEach(func() {
+			quality = 20
+			sellIn = 10
+		})
+		JustBeforeEach(func() {
+			items = []*Item{
+				&Item{"Backstage passes to a TAFKAL80ETC concert", sellIn, quality},
+			}
+			UpdateQuality(items)
+		})
+
+		Context("more than 10 days before sellIn date", func() {
+			BeforeEach(func() {
+				sellIn = 30
+			})
+			It("increases by 1 in quality and decreases sellIn date", func() {
+				Expect(items[0].quality).To(Equal(quality + 1))
+				Expect(items[0].sellIn).To(Equal(sellIn - 1))
+			})
+		})
+		Context("10 days or less before sellIn date", func() {
+			BeforeEach(func() {
+				sellIn = 10
+			})
+			It("increasess 2 in quality and decreases sellIn date", func() {
+				Expect(items[0].quality).To(Equal(quality + 2))
+				Expect(items[0].sellIn).To(Equal(sellIn - 1))
+			})
+		})
+		Context("5 days or less before sellIn date", func() {
+			BeforeEach(func() {
+				sellIn = 5
+			})
+			It("increasess 3 in quality and decreases sellIn date", func() {
+				Expect(items[0].quality).To(Equal(quality + 3))
+				Expect(items[0].sellIn).To(Equal(sellIn - 1))
+			})
+		})
+
+		Context("at max quality", func() {
+			BeforeEach(func() {
+				sellIn = 5
+				quality = 50
+			})
+
+			It("quality stays at the max quality", func() {
+				Expect(items[0].quality).To(Equal(50))
+				Expect(items[0].sellIn).To(Equal(sellIn - 1))
+			})
+		})
+		Context("after sellIn date", func() {
+			BeforeEach(func() {
+				sellIn = 0
+			})
+
+			It("its quality drops to zero", func() {
+				Expect(items[0].quality).To(Equal(0))
+				Expect(items[0].sellIn).To(Equal(sellIn - 1))
+			})
+		})
+	})
 })
